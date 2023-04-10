@@ -1,5 +1,5 @@
 const express = require('express');
-const { Product } = require('../models');
+const { Product, Category } = require('../models');
 const { createProductForm, bootstrapField } = require('../forms');
 const router = express.Router();
 
@@ -7,8 +7,13 @@ const router = express.Router();
 router.get('/', async(req,res)=>{
     // .collection() -- access all the rows
     // .fetch() -- execute the query
-    const products = await Product.collection().fetch();
+    const products = await Product.collection().fetch({
+        'withRelated':['category']  // fetch the cateogry relationship
+                                    // we have provide the name of the relationship
+    });
    
+    console.log(products.toJSON());
+
     // if we want the results to be in an array of objects form
     // we have to call .toJSON on the results
     res.render('products/index',{
@@ -17,7 +22,23 @@ router.get('/', async(req,res)=>{
 })
 
 router.get('/create', async(req,res)=>{
-    const form = createProductForm();
+
+
+    // example of how the categories must be represented:
+    //  [
+        //     [1, "Egg Replacement"],
+        //     [2, "Starch Replacement"],
+        //     [3, "Desserts"]
+        // ]
+
+    // we use bookshelf to get all the categories
+    // fetchAll() will return all the rows, each row is one bookshelf object
+    // we use the .get function on the bookshelf object to retrieve the value of each column
+    const allCategories = await Category.fetchAll().map( category =>{
+        return [ category.get('id'), category.get('name')]
+    });
+
+    const form = createProductForm(allCategories);
     res.render('products/create', {
         'form': form.toHTML(bootstrapField)
     })
@@ -38,6 +59,7 @@ router.post('/create', async(req,res)=>{
             product.set('name', form.data.name);
             product.set('cost', form.data.cost);
             product.set('description', form.data.description);
+            product.set('category_id', form.data.category_id);
             // remember to save
             await product.save();
             res.redirect('/products');
@@ -60,6 +82,10 @@ router.post('/create', async(req,res)=>{
 })
 
 router.get('/:productId/update', async(req,res)=>{
+
+    // fetch all the categories
+    const allCategories = await Category.fetchAll().map( c => [c.get('id'), c.get('name')]);
+
     // fetch one row using Bookshelf
     const product = await Product.where({
         "id": req.params.productId
@@ -67,10 +93,11 @@ router.get('/:productId/update', async(req,res)=>{
         'require': true
     });
 
-    const productForm = createProductForm();
+    const productForm = createProductForm(allCategories);
     productForm.fields.name.value = product.get('name');
     productForm.fields.cost.value = product.get('cost');
     productForm.fields.description.value = product.get('description')
+    productForm.fields.category_id.value = product.get('category_id');
 
     res.render('products/update',{
         'form': productForm.toHTML(bootstrapField)
@@ -92,12 +119,12 @@ router.post('/:productId/update', async function(req,res){
         },
         "empty": async (form) => {
             res.render('products/update',{
-                'form': productForm.toHTML(bootstrapField)
+                'form': form.toHTML(bootstrapField)
             })
         },
         "error": async (form) => {
             res.render('products/update',{
-                'form': productForm.toHTML(bootstrapField)
+                'form': form.toHTML(bootstrapField)
             })
         }
     })

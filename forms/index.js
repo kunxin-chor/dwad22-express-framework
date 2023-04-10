@@ -1,6 +1,7 @@
 const forms = require('forms'); // require in caolan forms
 const fields = forms.fields;
 const vaildiators = forms.validators;
+const widgets = forms.widgets;
 
 // sophiscated manner:
 // const {fields, validators} = require('forms');
@@ -25,7 +26,9 @@ var bootstrapField = function (name, object) {
     return '<div class="form-group">' + label + widget + error + '</div>';
 };
 
-const createProductForm = () => {
+// assume that we will pass in all the categories as
+// an array in the first argument
+const createProductForm = (categories=[]) => {
     // the only arugment to forms.create is an object
     // each key defines one field in the form (one input element)
     // the value describes the form element
@@ -45,6 +48,13 @@ const createProductForm = () => {
             required: true,
             errorAfterField: true,
             widget: forms.widgets.textarea()
+        }),
+        "category_id": fields.string({
+            'label': 'Category',
+            'required': true,
+            'errorAfterField': true,
+            'widget': widgets.select(),
+            'choices': categories
         })
     })
 }

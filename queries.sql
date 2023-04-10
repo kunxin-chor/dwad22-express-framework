@@ -11,3 +11,7 @@ INSERT INTO products (name, cost, description) VALUES
  ("Brown Rice Cookies", 1000, "Cookies but brown rice"),
  ("Organic Soy Milk", 1000, "Soy Milk But Organic"),
  ("Mock Chicken Rice", 1000, "Chicken but tofu");
+
+ -- INSERT SOME CATEGORIES
+ INSERT INTO categories (name) VALUES
+ ("Cookies"), ("Milk Replacement"), ("Starch Replacement"), ("Desserts");

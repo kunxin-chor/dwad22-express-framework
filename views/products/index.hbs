@@ -7,6 +7,7 @@
             <th>Name</th>
             <th>Cost</th>
             <th>Description</th>
+            <th>Category</th>
             <th></th>
         </tr>
     </thead>
@@ -24,6 +25,9 @@
             </td>
             <td>
                 {{this.description}}
+            </td>
+            <td>
+                {{this.category.name}}
             </td>
             <td>
                 <a href="/products/{{this.id}}/update" class="btn btn-primary btn-sm">Update</a>
