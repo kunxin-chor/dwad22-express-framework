@@ -8,6 +8,7 @@
             <th>Cost</th>
             <th>Description</th>
             <th>Category</th>
+            <th>Tags</th>
             <th></th>
         </tr>
     </thead>
@@ -15,19 +16,24 @@
         {{#each products}}
         <tr>
             <td>
-                {{this.id}}
+                {{id}}
             </td>
             <td>
-                {{this.name}}
+                {{name}}
             </td>
             <td>
-                {{this.cost}}
+                {{cost}}
             </td>
             <td>
-                {{this.description}}
+                {{description}}
             </td>
             <td>
-                {{this.category.name}}
+                {{category.name}}
+            </td>
+            <td>
+                {{#each tags}}
+                   <span class="badge bg-primary"> {{name}}</span>
+                {{/each}}
             </td>
             <td>
                 <a href="/products/{{this.id}}/update" class="btn btn-primary btn-sm">Update</a>

@@ -15,3 +15,7 @@ INSERT INTO products (name, cost, description) VALUES
  -- INSERT SOME CATEGORIES
  INSERT INTO categories (name) VALUES
  ("Cookies"), ("Milk Replacement"), ("Starch Replacement"), ("Desserts");
+
+ -- INSERT SOME TAGS
+ INSERT INTO tags (name) VALUES
+ ("Ethically sourced"), ("Vegan"), ("Organic"), ("Healthy"), ("Gluten Free");
