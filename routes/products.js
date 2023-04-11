@@ -5,6 +5,8 @@ const router = express.Router();
 
 
 router.get('/', async(req,res)=>{
+
+
     // .collection() -- access all the rows
     // .fetch() -- execute the query
     const products = await Product.collection().fetch({
@@ -49,8 +51,17 @@ router.get('/create', async(req,res)=>{
 })
 
 router.post('/create', async(req,res)=>{
+
+    const allCategories = await Category.fetchAll().map( category =>{
+        return [ category.get('id'), category.get('name')]
+    });
+
+    const allTags = await Tag.fetchAll().map( tag => {
+        return [ tag.get('id'), tag.get('name')];
+    })
+
     // use caolan form to handle the request
-    const form = createProductForm();
+    const form = createProductForm(allCategories, allTags);
     form.handle(req,{
         "success": async (form) => {
   
@@ -74,7 +85,10 @@ router.post('/create', async(req,res)=>{
                 product.tags().attach(form.data.tags.split(','))
             }
          
-
+            // display a flash message
+            // argument 1: the category of the flash message
+            // argument 2: the content of the flash message
+            req.flash('success', 'Product created successfully!');
             res.redirect('/products');
 
         },
