@@ -65,6 +65,8 @@ app.use(function(req,res,next){
 // if we want to require our own files, we have to begin with "./"
 const landingRoutes = require('./routes/landing.js');
 const productRoutes = require('./routes/products.js');
+const userRoutes = require('./routes/users.js');
+
 async function main() {
   // make use of the landing page routes
   // if the url begins with "/", using the landingRoutes router
@@ -72,6 +74,9 @@ async function main() {
 
   // If the URL begins with /products, then use productRoutes
   app.use('/products', productRoutes)
+
+  // If the URL begins with /users, then use the userRoutes
+  app.use('/users', userRoutes);
   
 }
 

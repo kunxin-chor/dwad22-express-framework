@@ -1,6 +1,6 @@
 const forms = require('forms'); // require in caolan forms
 const fields = forms.fields;
-const vaildiators = forms.validators;
+const validators = forms.validators;
 const widgets = forms.widgets;
 
 // sophiscated manner:
@@ -42,7 +42,7 @@ const createProductForm = (categories=[], tags=[]) => {
         "cost": fields.number({
             required: true,
             errorAfterField: true,
-            validators:[vaildiators.integer()]
+            validators:[validators.integer()]
         }),
         "description": fields.string({
             required: true,
@@ -66,4 +66,40 @@ const createProductForm = (categories=[], tags=[]) => {
     })
 }
 
-module.exports = { bootstrapField,createProductForm }
+const createUserForm = () => {
+    return forms.create({
+        'username': fields.string({
+            'required': true,
+            'errorAfterField': true
+        }),
+        'email': fields.email({
+            'required': true,
+            'errorAfterField': true
+        }),
+        'password': fields.password({
+            'required': true,
+            'errorAfterField': true
+        }),
+        'confirm_password': fields.password({
+            'required': true,
+            'errorAfterField': true,
+            // make sure the value of this field matches the `password` field
+            'validators': [validators.matchField('password')]
+        })
+    })
+}
+
+const createLoginForm = () => {
+    return forms.create({
+        'email': fields.email({
+            'required': true,
+            'errorAfterField': true
+        }),
+        'password': fields.password({
+            'required': true,
+            'errorAfterField': true
+        })
+    })
+}
+
+module.exports = { bootstrapField,createProductForm, createUserForm, createLoginForm }

@@ -39,5 +39,8 @@ const Category = bookshelf.model('Category', {
     }
 })
 
+const User = bookshelf.model('User',{
+    'tableName':'users'
+})
 
-module.exports = { Product, Category, Tag }
+module.exports = { Product, Category, Tag, User }
