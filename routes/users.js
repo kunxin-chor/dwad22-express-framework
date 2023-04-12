@@ -3,6 +3,17 @@ const { createUserForm, createLoginForm, bootstrapField } = require('../forms');
 const { User } = require('../models');
 const { checkIfAuthenticated} = require('../middlewares');
 const router = express.Router();
+const crypto = require('crypto');
+
+
+
+const generateHashedPassword = (password) => {
+    // hashing algo (sha256 is the name of algo)
+    const sha256 = crypto.createHash('sha256');
+    // generated the hashed password
+    const hash = sha256.update(password).digest('base64');
+    return hash;
+}
 
 router.get('/signup', function(req,res){
     const form = createUserForm();
@@ -19,7 +30,7 @@ router.post('/signup', function(req,res){
             const user = new User();
             user.set("username", form.data.username);
             user.set("email", form.data.email);
-            user.set("password", form.data.password);
+            user.set("password", generateHashedPassword(form.data.password));
             await user.save();
 
             req.flash('success', 'Your account has been created! Welcome to Healthy Eating for Everyone!');
@@ -67,7 +78,7 @@ router.post('/login', function(req,res){
                 res.redirect('/users/login');
             } else {
                 // 2. check if the password matches
-                if (user.get('password') === form.data.password) {
+                if (user.get('password') === generateHashedPassword(form.data.password)) {
                               
                 // 3. if the user exists and the password matches, save the user id into the session
                 //    (additionally, can save extra info) 

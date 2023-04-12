@@ -3,6 +3,7 @@ const hbs = require("hbs");
 const wax = require("wax-on");
 const session = require('express-session');
 const flash = require('connect-flash');
+const csrf = require('csurf');
 
 // FileStore for storing the session
 const FileStore = require('session-file-store')(session);
@@ -44,6 +45,22 @@ app.use(session({
 // we have setup after sessions
 app.use(flash());
 
+// enable csrf (after enabling sessions)
+// EVERY POST ROUTE (every app.post or router.post) will be protected by CSRF
+app.use(csrf());
+
+// this middleware is to handle invalid csrf tokens errors
+// make sure to put this immediately after the app.use(csrf())
+app.use(function(err, req,res, next) {
+  // the error parameter is to handle errors
+  if (err && err.code === "EBADCSRFTOKEN") {
+    req.flash('error', "The form has expired. Please try again");
+    res.redirect('back'); // go back in history one step
+  } else {
+    next();
+  }
+});
+
 // demo allowing all hbs files to access the date
 app.use(function(req,res,next){
 
@@ -59,13 +76,23 @@ app.use(function(req,res,next){
   res.locals.successes = req.flash('success');
   res.locals.errors = req.flash('error')
   next();
+});
+
+// share the csrf token with all hbs files
+app.use(function(req,res,next){
+  // when we do app.use(csrf()), it adds the csrfToken function to req
+  res.locals.csrfToken = req.csrfToken();
+  next();
 })
+
+
 
 // import in the router
 // if we want to require our own files, we have to begin with "./"
 const landingRoutes = require('./routes/landing.js');
 const productRoutes = require('./routes/products.js');
 const userRoutes = require('./routes/users.js');
+const { checkIfAuthenticated } = require("./middlewares/index.js");
 
 async function main() {
   // make use of the landing page routes
