@@ -1,0 +1,20 @@
+{{#extends "base"}}
+
+{{#block "content"}}
+<h1>Shopping Cart</h1>
+{{#each cartItems}}
+<div class="card">
+    <div class="card-body">
+        <div class="card-title">
+            <div class="d-flex align-items-center">
+                <img src="{{this.product.image_url}}" style="width: 150px" class="img-thumbnail img-fluid"/>
+                <h2>{{this.product.name}}</h2>
+            </div>
+            Quantity: {{this.quantity}}
+        </div>
+    </div>
+</div>
+{{/each}}
+{{/block}}
+
+{{/extends}}

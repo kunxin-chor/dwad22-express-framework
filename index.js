@@ -93,7 +93,7 @@ const landingRoutes = require('./routes/landing.js');
 const productRoutes = require('./routes/products.js');
 const userRoutes = require('./routes/users.js');
 const cloudinaryRoutes = require('./routes/cloudinary.js');
-const { checkIfAuthenticated } = require("./middlewares/index.js");
+const cartRoutes = require('./routes/cart.js');
 
 async function main() {
   // make use of the landing page routes
@@ -107,6 +107,8 @@ async function main() {
   app.use('/users', userRoutes);
 
   app.use('/cloudinary', cloudinaryRoutes);
+
+  app.use('/cart', cartRoutes);
   
 }
 
