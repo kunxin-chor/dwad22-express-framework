@@ -15,9 +15,20 @@ async function addToCart(userId, productId, quantity) {
     // check if limited product etc.
 
     // if the product is already in the cart,
-    // retrieve the existing cart item and add to 1 instead
+    try {
+        const cartItem = await cartDataLayer.getCartItemByUserAndProduct(userId, productId);
+        if (cartItem) {
+            // retrieve the existing cart item and add to 1 instead
+           await cartDataLayer.updateQuantity(userId, productId, cartItem.get('quantity') + quantity);
+        } else {
+            await cartDataLayer.createCartItem(userId, productId, quantity);
+        }
+        return true;
+    } catch (e) {
+        console.log(e);
+        return false;
+    }
 
-    cartDataLayer.createCartItem(userId, productId, quantity);
 }
 
 module.exports = { getCart, addToCart};

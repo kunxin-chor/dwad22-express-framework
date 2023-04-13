@@ -1,5 +1,25 @@
 const { CartItem } = require('../models');
 
+// get cart item by user id and product id
+async function getCartItemByUserAndProduct(userId, productId) {
+    return await CartItem.where({
+        'user_id': userId,
+        'product_id': productId
+    }).fetch({
+        require: false
+    })
+}
+
+async function updateQuantity(userId, productId, quantity) {
+    const cartItem = await getCartItemByUserAndProduct(userId, productId);
+    if (cartItem) {
+        cartItem.set('quantity', quantity);
+        await cartItem.save();
+        return true;
+    }
+    return false;
+}
+
 // get the shopping cart for this particular userId
 async function getCart(userId) {
     return await CartItem.collection()
@@ -20,4 +40,4 @@ async function createCartItem(user_id, product_id, quantity) {
     return cartItem;
 }
 
-module.exports = { createCartItem, getCart};
+module.exports = { createCartItem, getCart, getCartItemByUserAndProduct, updateQuantity};
