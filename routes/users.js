@@ -59,8 +59,6 @@ router.get('/login', function(req,res){
 router.post('/login', function(req,res){
     const form = createLoginForm();
 
- 
-
     form.handle(req, {
         "success": async function(form) {
             // 1. get the user by email

@@ -10,6 +10,7 @@
             <th>Description</th>
             <th>Category</th>
             <th>Tags</th>
+            <th>Image</th>
             <th></th>
         </tr>
     </thead>
@@ -30,6 +31,11 @@
             </td>
             <td>
                 {{category.name}}
+            </td>
+            <td>
+                {{#if image_url}}
+                    <img src="{{image_url}}" class="img-fluid" />
+                {{/if}}
             </td>
             <td>
                 {{#each tags}}

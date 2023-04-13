@@ -46,7 +46,10 @@ router.get('/create', async(req,res)=>{
 
     const form = createProductForm(allCategories, allTags);
     res.render('products/create', {
-        'form': form.toHTML(bootstrapField)
+        'form': form.toHTML(bootstrapField),
+        'cloudinaryName': process.env.CLOUDINARY_NAME,
+        'cloudinaryApiKey': process.env.CLOUDINARY_API_KEY,
+        'cloudinaryPreset': process.env.CLOUDINARY_PRESET
     })
 })
 
@@ -76,6 +79,7 @@ router.post('/create', async(req,res)=>{
             product.set('cost', form.data.cost);
             product.set('description', form.data.description);
             product.set('category_id', form.data.category_id);
+            product.set('image_url', form.data.image_url);
             // remember to save the product
             await product.save();
 
@@ -95,14 +99,20 @@ router.post('/create', async(req,res)=>{
         "empty": async (form) => {
             // if the form is empty (no data provided)
             res.render('products/create', {
-                'form': form.toHTML(bootstrapField)
+                'form': form.toHTML(bootstrapField),
+                'cloudinaryName': process.env.CLOUDINARY_NAME,
+                'cloudinaryApiKey': process.env.CLOUDINARY_API_KEY,
+                'cloudinaryPreset': process.env.CLOUDINARY_PRESET
             });
 
         },
         "error": async (form) => {
             // if the form has errors in validation 
             res.render('products/create',{
-                'form': form.toHTML(bootstrapField)
+                'form': form.toHTML(bootstrapField),
+                'cloudinaryName': process.env.CLOUDINARY_NAME,
+                'cloudinaryApiKey': process.env.CLOUDINARY_API_KEY,
+                'cloudinaryPreset': process.env.CLOUDINARY_PRESET
             })
         }
     } )
@@ -129,6 +139,7 @@ router.get('/:productId/update', async(req,res)=>{
     productForm.fields.cost.value = product.get('cost');
     productForm.fields.description.value = product.get('description')
     productForm.fields.category_id.value = product.get('category_id');
+    productForm.fields.image_url.value = product.get('image_url');
 
     // get all the selected tags of the product
     // 'pluck' function only exists for bookshelf -- extracts out one key and put into an array
@@ -138,7 +149,11 @@ router.get('/:productId/update', async(req,res)=>{
     productForm.fields.tags.value = selectedTags;
 
     res.render('products/update',{
-        'form': productForm.toHTML(bootstrapField)
+        'product': product.toJSON(),
+        'form': productForm.toHTML(bootstrapField),
+        'cloudinaryName': process.env.CLOUDINARY_NAME,
+        'cloudinaryApiKey': process.env.CLOUDINARY_API_KEY,
+        'cloudinaryPreset': process.env.CLOUDINARY_PRESET
     });
 })
 
@@ -153,6 +168,11 @@ router.post('/:productId/update', async function(req,res){
     productForm.handle(req,{
         "success": async(form) => {
             const {tags, ...productData} = form.data;
+
+            // todo: check if the image has been replaced
+            // if the incoming image_url is different from the one in the product already
+            // use the cloudinary API to delete it
+
             product.set(productData);
             product.save();
 
@@ -172,12 +192,18 @@ router.post('/:productId/update', async function(req,res){
         },
         "empty": async (form) => {
             res.render('products/update',{
-                'form': form.toHTML(bootstrapField)
+                'form': form.toHTML(bootstrapField),
+                'cloudinaryName': process.env.CLOUDINARY_NAME,
+                'cloudinaryApiKey': process.env.CLOUDINARY_API_KEY,
+                'cloudinaryPreset': process.env.CLOUDINARY_PRESET
             })
         },
         "error": async (form) => {
             res.render('products/update',{
-                'form': form.toHTML(bootstrapField)
+                'form': form.toHTML(bootstrapField),
+                'cloudinaryName': process.env.CLOUDINARY_NAME,
+                'cloudinaryApiKey': process.env.CLOUDINARY_API_KEY,
+                'cloudinaryPreset': process.env.CLOUDINARY_PRESET
             })
         }
     })
