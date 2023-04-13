@@ -1,31 +1,24 @@
 const express = require('express');
 const { Product, Category, Tag } = require('../models');
 const { createProductForm, createSearchForm, bootstrapField } = require('../forms');
+const { getAllCategories, getAllTags, getProductById, createNewProduct, updateProduct } = require('../dal/products');
 const router = express.Router();
-
 
 router.get('/', async (req, res) => {
 
-    const allCategories = await Category.fetchAll().map(category => {
-        return [category.get('id'), category.get('name')]
-    });
+    const allCategories= await getAllCategories();
     // add a category with id 0 (meaning: any categories)
     allCategories.unshift([0, "------"])
 
-    const allTags = await Tag.fetchAll().map(tag => {
-        return [tag.get('id'), tag.get('name')];
-    });
+    const allTags = await getAllTags();
 
     const searchForm = createSearchForm(allCategories, allTags);
-
-
     // query builder
     // use javascript functions on the query builder to
     // inject in MySQL commands
 
     // the query to fetch EVERYTHING
     let q = Product.collection();   // => SELECT * FROM products WHERE 1
-
 
     searchForm.handle(req, {
         "success": async function (form) {
@@ -115,13 +108,9 @@ router.get('/create', async (req, res) => {
     // we use bookshelf to get all the categories
     // fetchAll() will return all the rows, each row is one bookshelf object
     // we use the .get function on the bookshelf object to retrieve the value of each column
-    const allCategories = await Category.fetchAll().map(category => {
-        return [category.get('id'), category.get('name')]
-    });
+    const allCategories = await getAllCategories();
 
-    const allTags = await Tag.fetchAll().map(tag => {
-        return [tag.get('id'), tag.get('name')];
-    })
+    const allTags = await getAllTags();
 
     const form = createProductForm(allCategories, allTags);
     res.render('products/create', {
@@ -134,13 +123,9 @@ router.get('/create', async (req, res) => {
 
 router.post('/create', async (req, res) => {
 
-    const allCategories = await Category.fetchAll().map(category => {
-        return [category.get('id'), category.get('name')]
-    });
+    const allCategories = await getAllCategories();
 
-    const allTags = await Tag.fetchAll().map(tag => {
-        return [tag.get('id'), tag.get('name')];
-    })
+    const allTags = await getAllTags();
 
     // use caolan form to handle the request
     const form = createProductForm(allCategories, allTags);
@@ -153,14 +138,7 @@ router.post('/create', async (req, res) => {
             // if we create a new instance of a model
             // const x = new ModelX();
             // then the x refers to ONE ROW IN THE TABLE
-            const product = new Product();  // creating a new row in the Product table
-            product.set('name', form.data.name);
-            product.set('cost', form.data.cost);
-            product.set('description', form.data.description);
-            product.set('category_id', form.data.category_id);
-            product.set('image_url', form.data.image_url);
-            // remember to save the product
-            await product.save();
+            const product = await createNewProduct(form.data);
 
             // after saving the product, associate the tags with it
             // note: form.data.tags is a comma delimited string
@@ -200,18 +178,13 @@ router.post('/create', async (req, res) => {
 router.get('/:productId/update', async (req, res) => {
 
     // fetch all the categories
-    const allCategories = await Category.fetchAll().map(c => [c.get('id'), c.get('name')]);
+    const allCategories = await getAllCategories();
 
     // fetch all the tags
-    const allTags = await Tag.fetchAll().map(t => [t.get('id'), t.get('name')]);
+    const allTags = await getAllTags();
 
     // fetch one row using Bookshelf
-    const product = await Product.where({
-        "id": req.params.productId
-    }).fetch({
-        'require': true,
-        'withRelated': ['tags']  // fetch all the tags
-    });
+    const product = await getProductById(req.params.productId);
 
     const productForm = createProductForm(allCategories, allTags);
     productForm.fields.name.value = product.get('name');
@@ -238,12 +211,7 @@ router.get('/:productId/update', async (req, res) => {
 
 router.post('/:productId/update', async function (req, res) {
     const productForm = createProductForm();
-    const product = await Product.where({
-        'id': req.params.productId
-    }).fetch({
-        'required': true,
-        'withRelated': ['tags']
-    })
+    const product = await getProductById(req.params.productId);
     productForm.handle(req, {
         "success": async (form) => {
             const { tags, ...productData } = form.data;
@@ -252,8 +220,7 @@ router.post('/:productId/update', async function (req, res) {
             // if the incoming image_url is different from the one in the product already
             // use the cloudinary API to delete it
 
-            product.set(productData);
-            product.save();
+            await updateProduct(product, productData);
 
             // begin the synchronization of tags
             const incomingTags = tags.split(",");
@@ -289,11 +256,7 @@ router.post('/:productId/update', async function (req, res) {
 })
 
 router.get('/:productId/delete', async function (req, res) {
-    const product = await Product.where({
-        'id': req.params.productId
-    }).fetch({
-        'required': true
-    });
+    const product = await getProductById(req.params.productId)
 
     res.render('products/delete', {
         'product': product.toJSON()
@@ -301,12 +264,8 @@ router.get('/:productId/delete', async function (req, res) {
 });
 
 router.post('/:productId/delete', async function (req, res) {
-    const product = await Product.where({
-        'id': req.params.productId
-    }).fetch({
-        'require': true
-    });
-    await product.destroy(); // remove the row
+    const product = await getProductById(req.params.productId);
+    await deleteProduct(product);
     res.redirect('/products');
 
 })
