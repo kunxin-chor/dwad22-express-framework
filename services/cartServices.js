@@ -28,7 +28,19 @@ async function addToCart(userId, productId, quantity) {
         console.log(e);
         return false;
     }
+}
+
+async function removeFromCart(userId, productId) {
+    // todo: indicate the user's interest in the product type
+    // todo: add this item to the list of removed items
+    // and when there's enough send an email with a discount code
+    return await cartDataLayer.removeFromCart(userId, productId);
 
 }
 
-module.exports = { getCart, addToCart};
+async function updateQuantity(userId, productId, newQuantity) {
+    // todo: make sure that there's enough stock
+    return await cartDataLayer.updateQuantity(userId, productId, newQuantity);
+}
+
+module.exports = { getCart, addToCart, removeFromCart, updateQuantity};

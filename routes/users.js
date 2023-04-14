@@ -68,8 +68,6 @@ router.post('/login', function(req,res){
                 require: false  // if the user is not found, Bookshelf won't throw error
             });
 
-            console.log("user =>", user);
-
             if (!user) {
                 res.status(403);
                 req.flash('error', "Unable to authenticate your details");
@@ -88,6 +86,9 @@ router.post('/login', function(req,res){
                     req.flash('success', `Welcome back ${user.get('username')}`);
                     res.redirect('/users/profile');
 
+                } else {
+                    req.flash('error', 'Unable to authenticate your details');
+                    res.redirect('/users/login');
                 }
             }
 

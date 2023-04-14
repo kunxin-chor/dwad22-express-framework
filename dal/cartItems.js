@@ -40,4 +40,15 @@ async function createCartItem(user_id, product_id, quantity) {
     return cartItem;
 }
 
-module.exports = { createCartItem, getCart, getCartItemByUserAndProduct, updateQuantity};
+async function removeFromCart(user_id, product_id) {
+    // find the cart item using bookshelf
+    const cartItem = await getCartItemByUserAndProduct(user_id, product_id);
+    if (cartItem) {
+        await cartItem.destroy();
+        return true;
+    }
+    return false;
+}
+
+
+module.exports = { createCartItem, getCart, getCartItemByUserAndProduct, updateQuantity, removeFromCart};
