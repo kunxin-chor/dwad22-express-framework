@@ -94,6 +94,7 @@ const productRoutes = require('./routes/products.js');
 const userRoutes = require('./routes/users.js');
 const cloudinaryRoutes = require('./routes/cloudinary.js');
 const cartRoutes = require('./routes/cart.js');
+const checkoutRoutes = require('./routes/checkout.js');
 
 async function main() {
   // make use of the landing page routes
@@ -109,6 +110,8 @@ async function main() {
   app.use('/cloudinary', cloudinaryRoutes);
 
   app.use('/cart', cartRoutes);
+
+  app.use('/checkout', checkoutRoutes);
   
 }
 
