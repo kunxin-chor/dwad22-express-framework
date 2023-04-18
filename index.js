@@ -32,6 +32,7 @@ app.use(
   })
 );
 
+
 // setup sessions
 app.use(session({
   'store': new FileStore(),
@@ -53,11 +54,9 @@ app.use(flash());
 // (i.e so that we can exclude certain routes from csrf)
 const csrfInstance = csrf();
 app.use(function (req, res, next) {
-  console.log(req.url);
-  if (req.url == "/checkout/process_payment") {
+  if (req.url == "/checkout/process_payment" || req.url.slice(0,5) === "/api/") {
     next();
   } else {
-    console.log("Error")
     // enable csrf for requests that does not access the payment
     csrfInstance(req, res, next);
   }
@@ -114,22 +113,29 @@ const cloudinaryRoutes = require('./routes/cloudinary.js');
 const cartRoutes = require('./routes/cart.js');
 const checkoutRoutes = require('./routes/checkout.js');
 
+const api = {
+  products: require('./routes/api/products.js')
+}
+
 async function main() {
   // make use of the landing page routes
   // if the url begins with "/", using the landingRoutes router
-  // app.use('/', landingRoutes);
+  app.use('/', landingRoutes);
 
-  // // If the URL begins with /products, then use productRoutes
-  // app.use('/products', productRoutes)
+  // If the URL begins with /products, then use productRoutes
+  app.use('/products', productRoutes)
 
-  // // If the URL begins with /users, then use the userRoutes
-  // app.use('/users', userRoutes);
+  // If the URL begins with /users, then use the userRoutes
+  app.use('/users', userRoutes);
 
-  // app.use('/cloudinary', cloudinaryRoutes);
+  app.use('/cloudinary', cloudinaryRoutes);
 
-  // app.use('/cart', cartRoutes);
+  app.use('/cart', cartRoutes);
 
   app.use('/checkout', checkoutRoutes);
+
+  // API routes
+  app.use('/api/products', express.json(), api.products);
 
 }
 

@@ -7,6 +7,10 @@ async function getAllCategories() {
     return allCategories;
 }
 
+async function getAllProducts() {
+    return await Product.fetchAll();
+}
+
 async function getAllTags() {
     const allTags = await Tag.fetchAll().map(tag => {
         return [tag.get('id'), tag.get('name')];
@@ -25,15 +29,19 @@ async function getProductById(id) {
 
 }
 
-async function createNewProduct(productData) {
+async function createNewProduct(productData, tags=[]) {
     const product = new Product();  // creating a new row in the Product table
-    product.set('name', form.data.name);
-    product.set('cost', form.data.cost);
-    product.set('description', form.data.description);
-    product.set('category_id', form.data.category_id);
-    product.set('image_url', form.data.image_url);
+    product.set('name', productData.name);
+    product.set('cost', productData.cost);
+    product.set('description', productData.description);
+    product.set('category_id', productData.category_id);
+    product.set('image_url', productData.image_url);
     // remember to save the product
     await product.save();
+    if (tags) {
+        await product.tags().attach(tags);
+    }
+
     return product;
 }
 
@@ -57,5 +65,6 @@ module.exports = {
     getProductById,
     createNewProduct,
     updateProduct,
-    deleteProduct
+    deleteProduct,
+    getAllProducts
 }
