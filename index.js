@@ -47,11 +47,26 @@ app.use(flash());
 
 // enable csrf (after enabling sessions)
 // EVERY POST ROUTE (every app.post or router.post) will be protected by CSRF
-app.use(csrf());
+// app.use(csrf());
+
+// use our own proxy mdidleware to enable csrf selectively
+// (i.e so that we can exclude certain routes from csrf)
+const csrfInstance = csrf();
+app.use(function (req, res, next) {
+  console.log(req.url);
+  if (req.url == "/checkout/process_payment") {
+    next();
+  } else {
+    console.log("Error")
+    // enable csrf for requests that does not access the payment
+    csrfInstance(req, res, next);
+  }
+
+})
 
 // this middleware is to handle invalid csrf tokens errors
 // make sure to put this immediately after the app.use(csrf())
-app.use(function(err, req,res, next) {
+app.use(function (err, req, res, next) {
   // the error parameter is to handle errors
   if (err && err.code === "EBADCSRFTOKEN") {
     req.flash('error', "The form has expired. Please try again");
@@ -62,7 +77,7 @@ app.use(function(err, req,res, next) {
 });
 
 // demo allowing all hbs files to access the date
-app.use(function(req,res,next){
+app.use(function (req, res, next) {
 
   // all the variables that are available in hbs files are in res.locals
   res.locals.date = new Date();
@@ -72,16 +87,19 @@ app.use(function(req,res,next){
 })
 
 // use our own custom middleware to extract flash messages
-app.use(function(req,res,next){
+app.use(function (req, res, next) {
   res.locals.successes = req.flash('success');
   res.locals.errors = req.flash('error')
   next();
 });
 
 // share the csrf token with all hbs files
-app.use(function(req,res,next){
+app.use(function (req, res, next) {
   // when we do app.use(csrf()), it adds the csrfToken function to req
-  res.locals.csrfToken = req.csrfToken();
+  if (req.csrfToken) {
+    res.locals.csrfToken = req.csrfToken();
+  }
+
   next();
 })
 
@@ -99,20 +117,20 @@ const checkoutRoutes = require('./routes/checkout.js');
 async function main() {
   // make use of the landing page routes
   // if the url begins with "/", using the landingRoutes router
-  app.use('/', landingRoutes);
+  // app.use('/', landingRoutes);
 
-  // If the URL begins with /products, then use productRoutes
-  app.use('/products', productRoutes)
+  // // If the URL begins with /products, then use productRoutes
+  // app.use('/products', productRoutes)
 
-  // If the URL begins with /users, then use the userRoutes
-  app.use('/users', userRoutes);
+  // // If the URL begins with /users, then use the userRoutes
+  // app.use('/users', userRoutes);
 
-  app.use('/cloudinary', cloudinaryRoutes);
+  // app.use('/cloudinary', cloudinaryRoutes);
 
-  app.use('/cart', cartRoutes);
+  // app.use('/cart', cartRoutes);
 
   app.use('/checkout', checkoutRoutes);
-  
+
 }
 
 main();
