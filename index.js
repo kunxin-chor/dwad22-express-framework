@@ -55,6 +55,7 @@ app.use(flash());
 const csrfInstance = csrf();
 app.use(function (req, res, next) {
   if (req.url == "/checkout/process_payment" || req.url.slice(0,5) === "/api/") {
+    // to exempt the route from CSRF
     next();
   } else {
     // enable csrf for requests that does not access the payment
@@ -113,8 +114,10 @@ const cloudinaryRoutes = require('./routes/cloudinary.js');
 const cartRoutes = require('./routes/cart.js');
 const checkoutRoutes = require('./routes/checkout.js');
 
+
 const api = {
-  products: require('./routes/api/products.js')
+  products: require('./routes/api/products.js'),
+  users: require('./routes/api/users.js')
 }
 
 async function main() {
@@ -136,6 +139,7 @@ async function main() {
 
   // API routes
   app.use('/api/products', express.json(), api.products);
+  app.use('/api/users', express.json(), api.users);
 
 }
 

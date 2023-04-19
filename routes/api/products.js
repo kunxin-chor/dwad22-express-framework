@@ -13,6 +13,7 @@ router.get('/', async function(req,res){
 });
 
 router.post('/', async function(req,res){
+    // no validation is demonstrated here for sake of time
     const allCategories = await productDataLayer.getAllCategories();
     const allTags = await productDataLayer.getAllTags();
     const productForm = createProductForm(allCategories, allTags);
